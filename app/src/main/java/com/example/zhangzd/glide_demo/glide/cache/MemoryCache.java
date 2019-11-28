@@ -18,6 +18,10 @@ public class MemoryCache  extends LruCache<String, ImgResource> {
         super(maxSize);
     }
 
+    public void setCallback (MemoryCacheAutoRemoveCallback callback) {
+        this.callback = callback;
+    }
+
     @Override
     protected int sizeOf(String key, ImgResource value) {
         Bitmap bitmap = value.getBitmap();

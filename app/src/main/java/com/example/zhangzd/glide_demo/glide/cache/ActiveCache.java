@@ -2,6 +2,7 @@ package com.example.zhangzd.glide_demo.glide.cache;
 
 import android.util.ArrayMap;
 
+import com.example.zhangzd.glide_demo.glide.resource.ImageNoUseCallback;
 import com.example.zhangzd.glide_demo.glide.resource.ImgResource;
 import com.example.zhangzd.glide_demo.glide.util.Tool;
 
@@ -22,10 +23,19 @@ public class ActiveCache {
     private boolean isShouDongRemove;   // 是否是手动移除
     private boolean isCloseThread; //标记线程是否关闭
     private Thread thread;
+    private ImageNoUseCallback callback;
+
+
+    public ActiveCache(ImageNoUseCallback callback){
+        this.callback = callback;
+    }
 
 
     public void put(String key,ImgResource resource){
-        cacheMap.put(key,new CusWeakReference(resource,getQueue(),key));
+        if (callback != null) {
+            resource.setNoUseCallback(callback);
+        }
+        cacheMap.put(key,new CusWeakReference(resource, getQueue(), key));
     }
 
 

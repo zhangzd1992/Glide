@@ -3,7 +3,6 @@ package com.example.zhangzd.glide_demo.glide.resource;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.example.zhangzd.glide_demo.glide.cache.ImageNoUseCallback;
 import com.example.zhangzd.glide_demo.glide.util.Tool;
 
 /**

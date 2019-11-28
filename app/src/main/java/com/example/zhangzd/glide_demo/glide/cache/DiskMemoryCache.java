@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 
+import com.example.zhangzd.glide_demo.glide.pool.BitmapPool;
 import com.example.zhangzd.glide_demo.glide.resource.ImgResource;
 import com.example.zhangzd.glide_demo.glide.cache.disk.DiskLruCache;
 import com.example.zhangzd.glide_demo.glide.util.Tool;
@@ -69,22 +70,36 @@ public class DiskMemoryCache {
     }
 
 
-    public ImgResource get(String key) {
+    public ImgResource get(String key, BitmapPool bitmapPool) {
         Tool.checkNotEmpty(key);
         DiskLruCache.Editor editor = null;
         InputStream inputStream = null;
         try {
-            editor = diskLruCache.edit(key);
-            inputStream = editor.newInputStream(0);
+            DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
+            if (snapshot != null) {
+                inputStream = snapshot.getInputStream(0);
+                ImgResource imgResource = ImgResource.getInstance();
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeStream(inputStream,null,options);
+                int width = options.outWidth;
+                int height = options.outHeight;
+                options.inMutable = true;
+                options.inJustDecodeBounds = false;
 
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                Bitmap bitmap = bitmapPool.get(width, height, options.inPreferredConfig);
+                //inbitmap 不为null时，则不创建新的bitmap用该值复用
 
-            ImgResource imgResource = new ImgResource();
-            imgResource.setBitmap(bitmap);
-            imgResource.setKey(key);
+                options.inBitmap = bitmap;
+                options.inMutable = true;
+                options.inPreferredConfig = Bitmap.Config.RGB_565;
+                options.inSampleSize = Tool.sampleBitmapSize(options, width, height);
+                Bitmap resoult = BitmapFactory.decodeStream(inputStream);
+                imgResource.setBitmap(resoult);
+                imgResource.setKey(key);
 
-            return imgResource;
-
+                return imgResource;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }finally {

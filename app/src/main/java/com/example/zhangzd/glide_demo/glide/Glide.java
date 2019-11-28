@@ -1,6 +1,9 @@
 package com.example.zhangzd.glide_demo.glide;
 
 import android.app.Activity;
+import android.content.Context;
+
+import androidx.fragment.app.FragmentActivity;
 
 
 /**
@@ -16,6 +19,14 @@ public class Glide {
 
     public static RequestManager with(Activity activity) {
         return getRetriever().get(activity);
+    }
+
+    public static RequestManager with(FragmentActivity activity) {
+        return getRetriever().get(activity);
+    }
+
+    public static RequestManager with(Context context) {
+        return getRetriever().get(context);
     }
 
     private static RequestManagerRetriever getRetriever() {
